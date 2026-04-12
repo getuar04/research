@@ -6,7 +6,7 @@ import {
   deletePostRepo,
 } from "../repositories/post.repository.js";
 import { getUserByIdRepo } from "../repositories/user.repository.js";
-import { createActivityLogRepo } from "../repositories/activityLog.repository.js";
+import { publishPostEvent } from "../kafka/producer.js";
 
 export const getAllPostsService = async () => {
   return await getAllPostsRepo();
@@ -39,11 +39,11 @@ export const createPostService = async (title, content, userId) => {
 
   const post = await createPostRepo(title, content, userId);
 
-  await createActivityLogRepo({
-    action: "POST_CREATED",
-    userId,
+  await publishPostEvent("POST_CREATED", {
     postId: post.id,
-    message: `User ${user.name} created post ${post.title}`,
+    userId,
+    userName: user.name,
+    title: post.title,
   });
 
   return post;
@@ -70,11 +70,11 @@ export const updatePostService = async (id, title, content, userId) => {
     throw new Error("Post not found");
   }
 
-  await createActivityLogRepo({
-    action: "POST_UPDATED",
-    userId,
+  await publishPostEvent("POST_UPDATED", {
     postId: updatedPost.id,
-    message: `User ${user.name} updated post ${updatedPost.title}`,
+    userId,
+    userName: user.name,
+    title: updatedPost.title,
   });
 
   return updatedPost;
@@ -91,11 +91,10 @@ export const deletePostService = async (id) => {
     throw new Error("Post not found");
   }
 
-  await createActivityLogRepo({
-    action: "POST_DELETED",
-    userId: deletedPost.user_id,
+  await publishPostEvent("POST_DELETED", {
     postId: deletedPost.id,
-    message: `Post ${deletedPost.title} was deleted`,
+    userId: deletedPost.user_id,
+    title: deletedPost.title,
   });
 
   return deletedPost;

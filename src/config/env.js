@@ -12,4 +12,9 @@ export const env = {
   dbName: process.env.DB_NAME,
 
   mongoUri: process.env.MONGO_URI,
+
+  kafkaBroker: process.env.KAFKA_BROKER,
+  kafkaClientId: process.env.KAFKA_CLIENT_ID,
+  kafkaTopicPosts: process.env.KAFKA_TOPIC_POSTS,
+  kafkaGroupId: process.env.KAFKA_GROUP_ID,
 };
