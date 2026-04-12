@@ -6,6 +6,7 @@ import {
   deletePostRepo,
 } from "../repositories/post.repository.js";
 import { getUserByIdRepo } from "../repositories/user.repository.js";
+import { createActivityLogRepo } from "../repositories/activityLog.repository.js";
 
 export const getAllPostsService = async () => {
   return await getAllPostsRepo();
@@ -36,7 +37,16 @@ export const createPostService = async (title, content, userId) => {
     throw new Error("User does not exist");
   }
 
-  return await createPostRepo(title, content, userId);
+  const post = await createPostRepo(title, content, userId);
+
+  await createActivityLogRepo({
+    action: "POST_CREATED",
+    userId,
+    postId: post.id,
+    message: `User ${user.name} created post ${post.title}`,
+  });
+
+  return post;
 };
 
 export const updatePostService = async (id, title, content, userId) => {
@@ -60,6 +70,13 @@ export const updatePostService = async (id, title, content, userId) => {
     throw new Error("Post not found");
   }
 
+  await createActivityLogRepo({
+    action: "POST_UPDATED",
+    userId,
+    postId: updatedPost.id,
+    message: `User ${user.name} updated post ${updatedPost.title}`,
+  });
+
   return updatedPost;
 };
 
@@ -73,6 +90,13 @@ export const deletePostService = async (id) => {
   if (!deletedPost) {
     throw new Error("Post not found");
   }
+
+  await createActivityLogRepo({
+    action: "POST_DELETED",
+    userId: deletedPost.user_id,
+    postId: deletedPost.id,
+    message: `Post ${deletedPost.title} was deleted`,
+  });
 
   return deletedPost;
 };

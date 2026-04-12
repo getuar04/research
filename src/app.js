@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import userRoutes from "./routes/user.routes.js";
 import postRoutes from "./routes/post.routes.js";
+import activityLogRoutes from "./routes/activityLog.routes.js";
 
 const app = express();
 
@@ -17,5 +18,6 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/activity-logs", activityLogRoutes);
 
 export default app;
