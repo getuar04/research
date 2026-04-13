@@ -5,7 +5,7 @@ import {
   updatePostRepo,
   deletePostRepo,
 } from "../repositories/post.repository.js";
-import { getUserByIdRepo } from "../repositories/user.repository.js";
+import { getUserByIdRepo } from "../repositories/auth.repository.js";
 import { publishPostEvent } from "../kafka/producer.js";
 import { redisClient } from "../db/redis.js";
 

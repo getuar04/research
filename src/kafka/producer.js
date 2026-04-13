@@ -22,3 +22,14 @@ export const publishPostEvent = async (eventType, payload) => {
     ],
   });
 };
+
+export const sendEvent = async (topic, message) => {
+  await producer.send({
+    topic,
+    messages: [
+      {
+        value: JSON.stringify(message),
+      },
+    ],
+  });
+};

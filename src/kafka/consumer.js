@@ -23,32 +23,34 @@ export const connectConsumer = async () => {
 
       const event = JSON.parse(rawValue);
 
-      if (event.eventType === "POST_CREATED") {
-        await createActivityLogRepo({
-          action: "POST_CREATED",
-          userId: event.userId,
-          postId: event.postId,
-          message: `User ${event.userName} created post ${event.title}`,
-        });
+      const supportedActions = [
+        "POST_CREATED",
+        "POST_UPDATED",
+        "POST_DELETED",
+        "USER_REGISTERED",
+        "LOGIN_2FA_SENT",
+        "USER_LOGGED_IN",
+        "LOGIN_FAILED",
+        "PASSWORD_RESET_REQUESTED",
+        "PASSWORD_RESET_COMPLETED",
+        "USER_LOGGED_OUT",
+        "PROFILE_UPDATED",
+        "TOKEN_REFRESHED",
+      ];
+
+      if (
+        !supportedActions.includes(event.action) &&
+        !supportedActions.includes(event.eventType)
+      ) {
+        return;
       }
 
-      if (event.eventType === "POST_UPDATED") {
-        await createActivityLogRepo({
-          action: "POST_UPDATED",
-          userId: event.userId,
-          postId: event.postId,
-          message: `User ${event.userName} updated post ${event.title}`,
-        });
-      }
-
-      if (event.eventType === "POST_DELETED") {
-        await createActivityLogRepo({
-          action: "POST_DELETED",
-          userId: event.userId,
-          postId: event.postId,
-          message: `Post ${event.title} was deleted`,
-        });
-      }
+      await createActivityLogRepo({
+        action: event.action || event.eventType,
+        userId: event.userId || null,
+        postId: event.postId || null,
+        message: event.message,
+      });
     },
   });
 };
