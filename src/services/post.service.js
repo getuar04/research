@@ -1,5 +1,6 @@
 import {
   getAllPostsRepo,
+  getMyPostsRepo,
   getPostByIdRepo,
   createPostRepo,
   updatePostRepo,
@@ -19,6 +20,23 @@ export const getAllPostsService = async () => {
   const posts = await getAllPostsRepo();
 
   await redisClient.set("posts:all", JSON.stringify(posts), {
+    EX: 60,
+  });
+
+  return posts;
+};
+
+export const getMyPostsService = async (userId) => {
+  const cacheKey = `posts:user:${userId}`;
+  const cachedPosts = await redisClient.get(cacheKey);
+
+  if (cachedPosts) {
+    return JSON.parse(cachedPosts);
+  }
+
+  const posts = await getMyPostsRepo(userId);
+
+  await redisClient.set(cacheKey, JSON.stringify(posts), {
     EX: 60,
   });
 
@@ -51,8 +69,8 @@ export const getPostByIdService = async (id) => {
 };
 
 export const createPostService = async (title, content, userId) => {
-  if (!title || !userId) {
-    throw new Error("Title and userId are required");
+  if (!title) {
+    throw new Error("Title is required");
   }
 
   const user = await getUserByIdRepo(userId);
@@ -64,69 +82,82 @@ export const createPostService = async (title, content, userId) => {
   const post = await createPostRepo(title, content, userId);
 
   await redisClient.del("posts:all");
+  await redisClient.del(`posts:user:${userId}`);
 
   await publishPostEvent("POST_CREATED", {
     postId: post.id,
     userId,
     userName: user.name,
     title: post.title,
+    message: `User ${user.name} created post ${post.title}`,
   });
 
   return post;
 };
 
-export const updatePostService = async (id, title, content, userId) => {
+export const updatePostService = async (id, title, content, userId, role) => {
   if (!id || Number.isNaN(id)) {
     throw new Error("Valid post id is required");
   }
 
-  if (!title || !userId) {
-    throw new Error("Title and userId are required");
+  if (!title) {
+    throw new Error("Title is required");
   }
 
-  const user = await getUserByIdRepo(userId);
+  const existingPost = await getPostByIdRepo(id);
 
-  if (!user) {
-    throw new Error("User does not exist");
-  }
-
-  const updatedPost = await updatePostRepo(id, title, content, userId);
-
-  if (!updatedPost) {
+  if (!existingPost) {
     throw new Error("Post not found");
   }
 
+  if (existingPost.user_id !== userId && role !== "admin") {
+    throw new Error("Access denied");
+  }
+
+  const user = await getUserByIdRepo(userId);
+  const updatedPost = await updatePostRepo(id, title, content);
+
   await redisClient.del("posts:all");
   await redisClient.del(`posts:${id}`);
+  await redisClient.del(`posts:user:${userId}`);
 
   await publishPostEvent("POST_UPDATED", {
     postId: updatedPost.id,
     userId,
-    userName: user.name,
+    userName: user?.name || "Unknown",
     title: updatedPost.title,
+    message: `User ${user?.name || "Unknown"} updated post ${updatedPost.title}`,
   });
 
   return updatedPost;
 };
 
-export const deletePostService = async (id) => {
+export const deletePostService = async (id, userId, role) => {
   if (!id || Number.isNaN(id)) {
     throw new Error("Valid post id is required");
   }
 
-  const deletedPost = await deletePostRepo(id);
+  const existingPost = await getPostByIdRepo(id);
 
-  if (!deletedPost) {
+  if (!existingPost) {
     throw new Error("Post not found");
   }
 
+  if (existingPost.user_id !== userId && role !== "admin") {
+    throw new Error("Access denied");
+  }
+
+  const deletedPost = await deletePostRepo(id);
+
   await redisClient.del("posts:all");
   await redisClient.del(`posts:${id}`);
+  await redisClient.del(`posts:user:${userId}`);
 
   await publishPostEvent("POST_DELETED", {
     postId: deletedPost.id,
     userId: deletedPost.user_id,
     title: deletedPost.title,
+    message: `Post ${deletedPost.title} was deleted`,
   });
 
   return deletedPost;

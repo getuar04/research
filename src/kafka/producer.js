@@ -1,4 +1,5 @@
 import { kafka } from "./client.js";
+import { env } from "../config/env.js";
 
 export const producer = kafka.producer();
 
@@ -9,7 +10,7 @@ export const connectProducer = async () => {
 
 export const publishPostEvent = async (eventType, payload) => {
   await producer.send({
-    topic: "post-events",
+    topic: env.kafkaTopicPosts,
     messages: [
       {
         key: String(payload.postId),

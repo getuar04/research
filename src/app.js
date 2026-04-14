@@ -6,6 +6,7 @@ import { env } from "./config/env.js";
 import authRoutes from "./routes/auth.routes.js";
 import postRoutes from "./routes/post.routes.js";
 import activityLogRoutes from "./routes/activityLog.routes.js";
+import { errorMiddleware } from "./middleware/error.middleware.js";
 
 const app = express();
 
@@ -29,5 +30,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/activity-logs", activityLogRoutes);
+
+app.use(errorMiddleware);
 
 export default app;

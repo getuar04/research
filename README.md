@@ -1,6 +1,6 @@
 # 🚀 Backend Research Project (Node.js)
 
-A modern backend system built with Node.js using a **Clean Architecture approach**, integrating multiple databases and an event-driven system.
+A modern backend system built with Node.js using a **Clean Architecture approach**, integrating multiple databases, authentication flows, caching, and an event-driven system.
 
 ---
 
@@ -9,11 +9,12 @@ A modern backend system built with Node.js using a **Clean Architecture approach
 This project demonstrates a real-world backend architecture that combines:
 
 - REST API with Express.js
-- PostgreSQL for relational data
+- PostgreSQL for core relational data
 - MongoDB for activity logging
 - Redis for caching and temporary storage
 - Apache Kafka for event-driven communication
 - JWT Authentication with 2FA and password reset flow
+- Docker Compose for service orchestration
 
 ---
 
@@ -53,28 +54,45 @@ Route → Controller → Service → Repository → Database
 - Kafka (kafkajs)
 - JWT (jsonwebtoken)
 - Nodemailer
-- Docker
+- Docker / Docker Compose
 
 ---
 
 ## 🔐 Authentication Features
 
 - User Registration
-- Login with 2FA (email-based)
-- JWT Access Token
+- Login with Email + Password
+- 2FA verification (email-based)
+- JWT Access Token (short-lived)
 - Refresh Token (httpOnly cookie)
-- Forgot Password (reset link via email)
+- Forgot Password (email reset link)
 - Reset Password (token-based)
-- Logout
-- Profile update (`/me`, `/profile`)
+- Logout (invalidates refresh token)
+- Get current user (`/me`)
+- Update profile (`/profile`)
+
+---
+
+## 🔒 Authorization & Security
+
+- Protected routes using JWT middleware
+- Role-based access control (admin / user)
+- Only authenticated users can:
+  - create posts
+  - update posts
+  - delete posts
+- Ownership-based authorization:
+  - users can only modify their own posts
+- Admin-only access:
+  - full activity logs
 
 ---
 
 ## ⚡ Event-Driven System (Kafka)
 
-The system uses Kafka to publish and consume events.
+Kafka is used for decoupled event processing.
 
-### Examples of events:
+### Events published:
 
 - USER_REGISTERED
 - LOGIN_2FA_SENT
@@ -84,20 +102,28 @@ The system uses Kafka to publish and consume events.
 - PASSWORD_RESET_COMPLETED
 - USER_LOGGED_OUT
 - PROFILE_UPDATED
-- POST_CREATED / UPDATED / DELETED
+- POST_CREATED
+- POST_UPDATED
+- POST_DELETED
+
+### Flow:
+
+```
+Post/Auth Action → Kafka Producer → Kafka Topic → Consumer → MongoDB Logs
+```
 
 ---
 
 ## 📊 Activity Logs (MongoDB)
 
-All important system actions are stored in MongoDB:
+All important system actions are stored in MongoDB.
 
 ```
 Database: activityLog
 Collection: activitylogs
 ```
 
-Each log includes:
+Each log contains:
 
 - action
 - userId
@@ -105,16 +131,21 @@ Each log includes:
 - message
 - timestamps
 
+### Endpoints:
+
+- GET `/api/activity-logs` → admin only
+- GET `/api/activity-logs/my-logs` → current user only
+
 ---
 
-## 🧠 Caching (Redis)
+## 🧠 Caching & Tokens (Redis)
 
 Redis is used for:
 
-- 2FA codes (`2fa:email`)
-- Password reset tokens (`reset:token`)
-- Refresh tokens (`refresh:userId`)
-- User caching (`users:all`, `users:id`)
+- 2FA codes → `2fa:email`
+- Password reset tokens → `reset:token`
+- Refresh tokens → `refresh:userId`
+- Optional caching layer for performance
 
 ---
 
@@ -137,7 +168,7 @@ Stores:
 
 Stores:
 
-- temporary/auth data
+- temporary/authentication data
 
 ---
 
@@ -160,6 +191,7 @@ KAFKA_BROKER=localhost:9092
 KAFKA_CLIENT_ID=backend-app
 KAFKA_TOPIC_POSTS=post-events
 KAFKA_GROUP_ID=post-events-group
+KAFKAJS_NO_PARTITIONER_WARNING=1
 
 REDIS_URL=redis://127.0.0.1:6379
 
@@ -191,14 +223,13 @@ MAIL_FROM=your_email@gmail.com
 npm install
 ```
 
-### 2. Start services with Docker
+### 2. Start services with Docker Compose
 
 ```bash
-docker run -d --name kafka -p 9092:9092 apache/kafka:4.2.0
-docker run -d --name redis -p 6379:6379 redis
+docker compose up -d
 ```
 
-### 3. Start server
+### 3. Start backend server
 
 ```bash
 npm start
@@ -220,31 +251,39 @@ npm start
 - GET `/api/auth/me`
 - PUT `/api/auth/profile`
 
+---
+
 ### Posts
 
-- POST `/api/posts`
+- POST `/api/posts` (auth required)
 - GET `/api/posts`
-- PUT `/api/posts/:id`
-- DELETE `/api/posts/:id`
-
-### Activity Logs
-
-- GET `/api/activity-logs`
+- GET `/api/posts/my-posts` (auth required)
+- PUT `/api/posts/:id` (owner/admin)
+- DELETE `/api/posts/:id` (owner/admin)
 
 ---
 
-## 📬 Testing
+### Activity Logs
 
-Use Postman to test all endpoints.
+- GET `/api/activity-logs` (admin only)
+- GET `/api/activity-logs/my-logs` (auth required)
 
-Typical flow:
+---
 
-1. Register
+## 🧪 Testing
+
+Use Postman to test endpoints.
+
+### Recommended flow:
+
+1. Register user
 2. Login
 3. Verify 2FA
-4. Use access token
+4. Get access token
 5. Test protected routes
-6. Check activity logs
+6. Create/update/delete posts
+7. Check logs in MongoDB
+8. Test admin vs user access
 
 ---
 
@@ -252,24 +291,31 @@ Typical flow:
 
 - Clean Architecture
 - Separation of concerns
-- Event-driven systems (Kafka)
-- Multi-database architecture
-- Authentication & security
-- Caching strategies
-- Audit logging
+- Event-driven architecture (Kafka)
+- Multi-database integration
+- Authentication & authorization
+- Token-based security (JWT + refresh tokens)
+- Redis caching strategies
+- Activity logging / audit trail
+- Docker-based development setup
 
 ---
 
 ## 💡 Notes
 
-- This project is backend-only (no frontend required)
+- Backend-only project (no frontend required)
 - Designed for learning and real-world backend practices
-- Can be extended with roles (admin/user) in future
+- Kafka may show temporary rebalancing in local Docker setup (normal behavior)
+- Easily extendable with:
+  - roles/permissions system
+  - frontend integration
+  - microservices
 
 ---
 
 ## 👨‍💻 Author
 
-Getuar Jakupi
-Computer Science & Engineering Student
-Full-Stack Developer
+**Getuar Jakupi**  
+Computer Science & Engineering Student  
+Full-Stack Developer 🚀
+Email: getuar.j1@gmail.com
