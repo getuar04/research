@@ -4,12 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "start": "nodemon index.js",
-  "dev": "nodemon index.js",
-  "test": "echo \"No tests yet\" && exit 0",
-  "build": "echo \"Build step\""
-},
-
+    "start": "nodemon index.js",
+    "dev": "nodemon index.js",
+    "test": "node --test",
+    "build": "echo \"Build step\""
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
