@@ -1,12 +1,7 @@
-FROM node:20
-
+FROM node:20-alpine AS base
 WORKDIR /app
-
 COPY package*.json ./
-RUN npm ci
-
+RUN npm ci --omit=dev
 COPY . .
-
 EXPOSE 5000
-
-CMD ["npm", "start"]
+CMD ["node", "index.js"]
