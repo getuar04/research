@@ -1,10 +1,12 @@
-FROM jenkins/jenkins:lts
+FROM node:20
 
-USER root
+WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl ca-certificates gnupg
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-RUN apt-get install -y nodejs
-RUN node -v && npm -v
+COPY package*.json ./
+RUN npm ci
 
-USER jenkins
+COPY . .
+
+EXPOSE 5000
+
+CMD ["npm", "start"]
