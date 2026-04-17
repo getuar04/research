@@ -41,3 +41,4 @@ data:
 
   # Google OAuth
   GOOGLE_CALLBACK_URL: "http://localhost:30007/api/auth/google/callback"
+  

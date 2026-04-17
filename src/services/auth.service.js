@@ -353,13 +353,13 @@ export const googleLoginService = async (profile) => {
     EX: 60 * 60 * 24 * 7,
   });
 
-  await sendEvent("post-events", {
+  sendEvent("post-events", {
     action: "USER_LOGGED_IN",
     userId: user.id,
     email: user.email,
     message: `User ${user.email} logged in via Google`,
     createdAt: new Date().toISOString(),
-  });
+  }).catch((err) => console.error("Kafka event failed:", err.message));
 
   return { user, accessToken, refreshToken };
 };

@@ -98,6 +98,21 @@ spec:
                 secretKeyRef:
                   name: backend-secrets
                   key: MAIL_FROM
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: GOOGLE_CLIENT_ID
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: GOOGLE_CLIENT_SECRET
+            - name: GOOGLE_CALLBACK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: GOOGLE_CALLBACK_URL
           readinessProbe:
             httpGet:
               path: /
