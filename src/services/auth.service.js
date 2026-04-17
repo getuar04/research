@@ -8,6 +8,7 @@ import {
   updateUserPasswordRepo,
   getUserByIdWithPasswordRepo,
   updateProfileRepo,
+  findOrCreateGoogleUserRepo,
 } from "../repositories/auth.repository.js";
 import {
   generateAccessToken,
@@ -336,4 +337,29 @@ export const updateProfileService = async (userId, name) => {
   });
 
   return user;
+};
+
+export const googleLoginService = async (profile) => {
+  const googleId = profile.id;
+  const name = profile.displayName;
+  const email = profile.emails[0].value;
+
+  const user = await findOrCreateGoogleUserRepo(googleId, name, email);
+
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  await redisClient.set(`refresh:${user.id}`, refreshToken, {
+    EX: 60 * 60 * 24 * 7,
+  });
+
+  await sendEvent("post-events", {
+    action: "USER_LOGGED_IN",
+    userId: user.id,
+    email: user.email,
+    message: `User ${user.email} logged in via Google`,
+    createdAt: new Date().toISOString(),
+  });
+
+  return { user, accessToken, refreshToken };
 };

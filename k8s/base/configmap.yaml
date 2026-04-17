@@ -6,7 +6,7 @@ data:
   PORT: "5000"
 
   # PostgreSQL
-  DB_HOST: "postgres"         # emri i Service-it të postgres brenda cluster-it
+  DB_HOST: "postgres" # emri i Service-it të postgres brenda cluster-it
   DB_PORT: "5432"
   DB_USER: "postgres"
   DB_NAME: "app_db"
@@ -38,3 +38,6 @@ data:
   # Mail
   MAIL_HOST: "smtp.gmail.com"
   MAIL_PORT: "587"
+
+  # Google OAuth
+  GOOGLE_CALLBACK_URL: "http://localhost:30007/api/auth/google/callback"

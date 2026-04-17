@@ -8,6 +8,8 @@ import postRoutes from "./routes/post.routes.js";
 import activityLogRoutes from "./routes/activityLog.routes.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 
+import passport from "./config/passport.js";
+
 const app = express();
 
 app.use(
@@ -19,6 +21,7 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(passport.initialize());
 
 app.get("/", (req, res) => {
   return res.status(200).json({

@@ -72,3 +72,21 @@ export const getUserByIdRepo = async (id) => {
   return result.rows[0];
 };
 
+export const findOrCreateGoogleUserRepo = async (googleId, name, email) => {
+  const existing = await pool.query("SELECT * FROM users WHERE email = $1", [
+    email,
+  ]);
+
+  if (existing.rows[0]) {
+    return existing.rows[0];
+  }
+
+  const result = await pool.query(
+    `INSERT INTO users (name, email, password, role, is_verified, google_id)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING id, name, email, role, is_verified, created_at`,
+    [name, email, "GOOGLE_AUTH_NO_PASSWORD", "user", true, googleId],
+  );
+
+  return result.rows[0];
+};

@@ -39,4 +39,8 @@ export const env = {
   mailUser: process.env.MAIL_USER,
   mailPass: process.env.MAIL_PASS,
   mailFrom: process.env.MAIL_FROM,
+
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL,
 };

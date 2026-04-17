@@ -8,6 +8,7 @@ import {
   logoutService,
   meService,
   updateProfileService,
+  googleLoginService,
 } from "../services/auth.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -128,5 +129,26 @@ export const updateProfile = asyncHandler(async (req, res) => {
     success: true,
     message: "Profile updated successfully",
     data: user,
+  });
+});
+
+export const googleCallback = asyncHandler(async (req, res) => {
+  const { user, accessToken, refreshToken } = req.user;
+
+  res.cookie("refreshToken", refreshToken, refreshCookieOptions);
+
+  return res.status(200).json({
+    success: true,
+    message: "Logged in with Google successfully",
+    data: {
+      accessToken,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        is_verified: user.is_verified,
+      },
+    },
   });
 });
