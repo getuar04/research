@@ -14,6 +14,7 @@ This project demonstrates a real-world backend architecture that combines:
 - Redis for caching and temporary storage
 - Apache Kafka for event-driven communication
 - JWT Authentication with 2FA and password reset flow
+- Google OAuth 2.0 authentication
 - Docker & Kubernetes for containerization and orchestration
 - Jenkins CI/CD pipeline for automated builds and deployments
 
@@ -47,22 +48,26 @@ Route → Controller → Service → Repository → Database
 
 ## 🛠️ Tech Stack
 
-| Category         | Technology              |
-| ---------------- | ----------------------- |
-| Runtime          | Node.js (ES Modules)    |
-| Framework        | Express.js              |
-| Primary Database | PostgreSQL (pg)         |
-| Activity Logs    | MongoDB (mongoose)      |
-| Caching & Tokens | Redis                   |
-| Event Streaming  | Apache Kafka (kafkajs)  |
-| Authentication   | JWT + 2FA + Nodemailer  |
-| Containerization | Docker & Docker Compose |
-| Orchestration    | Kubernetes (kubectl)    |
-| CI/CD            | Jenkins Pipeline        |
+| Category         | Technology                                 |
+| ---------------- | ------------------------------------------ |
+| Runtime          | Node.js (ES Modules)                       |
+| Framework        | Express.js                                 |
+| Primary Database | PostgreSQL (pg)                            |
+| Activity Logs    | MongoDB (mongoose)                         |
+| Caching & Tokens | Redis                                      |
+| Event Streaming  | Apache Kafka (kafkajs)                     |
+| Authentication   | JWT + 2FA + Nodemailer                     |
+| OAuth            | Google OAuth 2.0 (passport-google-oauth20) |
+| Containerization | Docker & Docker Compose                    |
+| Orchestration    | Kubernetes (kubectl)                       |
+| CI/CD            | Jenkins Pipeline                           |
+| Testing          | Jest + Code Coverage                       |
 
 ---
 
 ## 🔐 Authentication Features
+
+### Email Authentication
 
 - User Registration
 - Login with Email + Password
@@ -74,6 +79,13 @@ Route → Controller → Service → Repository → Database
 - Logout (invalidates refresh token in Redis)
 - Get current user (`/me`)
 - Update profile (`/profile`)
+
+### Google OAuth 2.0
+
+- Login with Google account (no password required)
+- Automatic user creation on first login
+- Issues JWT access & refresh tokens same as email login
+- Fully integrated with existing user system
 
 ---
 
@@ -126,7 +138,7 @@ Post/Auth Action → Kafka Producer → Kafka Topic → Consumer → MongoDB Log
 
 ### PostgreSQL
 
-Stores: users, posts
+Stores: users (with google_id column for OAuth users), posts
 
 ### MongoDB
 
@@ -170,10 +182,10 @@ All services are deployed in a Kubernetes cluster using Docker Desktop. Each ser
 
 #### Kubernetes Configuration
 
-- **ConfigMap** — non-sensitive environment variables (DB_HOST, REDIS_URL, etc.)
-- **Secrets** — sensitive variables (DB_PASSWORD, JWT secrets, mail credentials)
+- **ConfigMap** — non-sensitive environment variables (DB_HOST, REDIS_URL, GOOGLE_CALLBACK_URL, etc.)
+- **Secrets** — sensitive variables (DB_PASSWORD, JWT secrets, mail credentials, Google OAuth credentials)
 - **PersistentVolumeClaims** — data persistence for PostgreSQL and MongoDB
-- **InitContainers** — backend waits for PostgreSQL, Redis, and MongoDB before starting
+- **InitContainers** — backend waits for PostgreSQL, Redis, MongoDB and Kafka before starting
 - **ReadinessProbe & LivenessProbe** — health checks on all services
 
 #### Kubernetes Manifests
@@ -252,6 +264,10 @@ MAIL_PORT=587
 MAIL_USER=your_email@gmail.com
 MAIL_PASS=your_app_password
 MAIL_FROM=your_email@gmail.com
+
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:30007/api/auth/google/callback
 ```
 
 ---
@@ -301,6 +317,14 @@ curl http://localhost:30007/
 # Expected: {"success":true,"message":"API is running"}
 ```
 
+### 6. Test Google OAuth
+
+Open in browser:
+
+```
+http://localhost:30007/api/auth/google
+```
+
 ---
 
 ## 🧪 API Endpoints
@@ -318,6 +342,8 @@ curl http://localhost:30007/
 | POST   | `/api/auth/logout`          | Auth   |
 | GET    | `/api/auth/me`              | Auth   |
 | PUT    | `/api/auth/profile`         | Auth   |
+| GET    | `/api/auth/google`          | Public |
+| GET    | `/api/auth/google/callback` | Public |
 
 ### Posts
 
@@ -338,10 +364,38 @@ curl http://localhost:30007/
 
 ---
 
+## 🧪 Testing & Coverage
+
+The project uses **Jest** as the testing framework with code coverage reporting.
+
+### Run Tests
+
+```bash
+npm test
+```
+
+### Coverage Report
+
+| File            | Coverage |
+| --------------- | -------- |
+| auth.service.js | ~21%     |
+| post.service.js | ~37%     |
+| jwt.js          | ~50%     |
+| Overall         | ~13%     |
+
+### Test Files
+
+| File                 | Tests                           |
+| -------------------- | ------------------------------- |
+| simple.test.js       | Basic unit tests                |
+| auth.service.test.js | Auth service tests with mocking |
+| post.service.test.js | Post service tests with mocking |
+
+---
+
 ## 🔮 Upcoming Tasks
 
-- **Code Coverage** — integrate `c8`/`nyc` reporting in Jenkins pipeline
-- **Google OAuth** — Google authentication integration
+- **ESLint** — code quality and linting rules
 
 ---
 
