@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -106,8 +106,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -118,8 +118,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -130,23 +130,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { env } from "../config/env.js";
 &nbsp;
-export const generateAccessToken = <span class="fstat-no" title="function not covered" >(u</span>ser) =&gt; {
-<span class="cstat-no" title="statement not covered" >  return jwt.sign(</span>
+export const generateAccessToken = (user) =&gt; {
+  return jwt.sign(
     {
       id: user.id,
       email: user.email,
@@ -157,8 +157,8 @@ export const generateAccessToken = <span class="fstat-no" title="function not co
   );
 };
 &nbsp;
-export const generateRefreshToken = <span class="fstat-no" title="function not covered" >(u</span>ser) =&gt; {
-<span class="cstat-no" title="statement not covered" >  return jwt.sign(</span>
+export const generateRefreshToken = (user) =&gt; {
+  return jwt.sign(
     {
       id: user.id,
       email: user.email,
@@ -169,16 +169,16 @@ export const generateRefreshToken = <span class="fstat-no" title="function not c
   );
 };
 &nbsp;
-export const verifyAccessToken = <span class="fstat-no" title="function not covered" >(t</span>oken) =&gt; {
-<span class="cstat-no" title="statement not covered" >  return jwt.verify(token, env.jwtAccessSecret);</span>
+export const verifyAccessToken = (token) =&gt; {
+  return jwt.verify(token, env.jwtAccessSecret);
 };
 &nbsp;
-export const verifyRefreshToken = <span class="fstat-no" title="function not covered" >(t</span>oken) =&gt; {
-<span class="cstat-no" title="statement not covered" >  return jwt.verify(token, env.jwtRefreshSecret);</span>
+export const verifyRefreshToken = (token) =&gt; {
+  return jwt.verify(token, env.jwtRefreshSecret);
 };
 &nbsp;
-export const generateResetToken = <span class="fstat-no" title="function not covered" >()</span> =&gt; {
-<span class="cstat-no" title="statement not covered" >  return crypto.randomBytes(32).toString("hex");</span>
+export const generateResetToken = () =&gt; {
+  return crypto.randomBytes(32).toString("hex");
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -187,7 +187,7 @@ export const generateResetToken = <span class="fstat-no" title="function not cov
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-17T12:10:09.065Z
+                at 2026-04-17T12:33:29.949Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
