@@ -24,6 +24,12 @@ import {
 import passport from "../config/passport.js";
 import { googleCallback } from "../controllers/auth.controller.js";
 
+import {
+  me as meAccountController,
+  updateProfile as updateProfileAccountController,
+  logout as logoutAccountController,
+} from "../infra/http/controllers/auth.account.controller.js";
+
 const router = Router();
 
 router.post("/register", validate(registerSchema), register);
@@ -57,13 +63,13 @@ router.get("/google/failed", (req, res) => {
   });
 });
 
-router.get("/me", authMiddleware, me);
+router.get("/me", authMiddleware, meAccountController);
 router.put(
   "/profile",
   authMiddleware,
   validate(updateProfileSchema),
-  updateProfile,
+  updateProfileAccountController,
 );
-router.post("/logout", authMiddleware, logout);
+router.post("/logout", authMiddleware, logoutAccountController);
 
 export default router;
