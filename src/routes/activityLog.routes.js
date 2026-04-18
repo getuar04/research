@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllActivityLogs } from "../controllers/activityLog.controller.js";
+import { getAllActivityLogs } from "../infra/http/controllers/activityLog.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { roleMiddleware } from "../middleware/role.middleware.js";
 

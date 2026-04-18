@@ -1,14 +1,16 @@
 import { Router } from "express";
 import {
   getAllPosts,
-  getMyPosts,
   getPostById,
+  getMyPosts,
+} from "../infra/http/controllers/post.read.controller.js";
+import {
   createPost,
   updatePost,
   deletePost,
-} from "../controllers/post.controller.js";
-import { validate } from "../middleware/validate.middleware.js";
+} from "../infra/http/controllers/post.write.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
+import { validate } from "../middleware/validate.middleware.js";
 import {
   createPostSchema,
   updatePostSchema,
@@ -19,7 +21,7 @@ const router = Router();
 
 router.get("/", getAllPosts);
 router.get("/my-posts", authMiddleware, getMyPosts);
-router.get("/:id", validate(postIdParamSchema), getPostById);
+router.get("/:id", getPostById);
 
 router.post("/", authMiddleware, validate(createPostSchema), createPost);
 router.put("/:id", authMiddleware, validate(updatePostSchema), updatePost);
